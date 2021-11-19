@@ -15,12 +15,13 @@ I'm so sorry
 |||
 | `>` | Move the pointer one cell to the right |
 | `<` | Move the pointer one cell to the left (cannot go below 0) |
+| `#` | Jump the pointer back to 0 |
 |||
 | `[` | Jump past the matching `]` if the current cell is 0 |
 | `]` | Jump back to the matching `[` if the current cell is !0 |
 |||
-| `:` | Push the current cell to the stack |
-| `;` | Pop the current cell from the stack |
+| `:` | Push the current cell value to the stack (leaves current cell intact) |
+| `;` | Pops the current cell from the stack and stores it in the current cell |
 |||
 | `^text` | Defines a label with name `text` to jump to with `@text` |
 | `@text` | Jumps to a label defined with the name `text` |

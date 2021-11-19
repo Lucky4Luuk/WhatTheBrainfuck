@@ -1,7 +1,7 @@
 use logos::Logos;
 
-#[derive(Logos, Debug, PartialEq)]
-pub enum Instruction {
+#[derive(Logos, Debug, PartialEq, Clone)]
+pub enum Token {
     #[token("+")]
     Add,
     #[token("-")]
@@ -15,6 +15,8 @@ pub enum Instruction {
     MoveRight,
     #[token("<")]
     MoveLeft,
+    #[token("#")]
+    MoveZero,
 
     #[token("[")]
     LoopLeft,
@@ -26,10 +28,13 @@ pub enum Instruction {
     #[token(";")]
     StackPop,
 
-    #[regex(r"[\^][a-zA-Z][a-zA-Z]*")]
+    #[regex(r"[\^][a-zA-Z_]+")]
     Label,
-    #[regex(r"[@][a-zA-Z][a-zA-Z]*")]
+    #[regex(r"[@][a-zA-Z_]+")]
     Jump,
+
+    #[regex(r"[ \t\n\r\f]+", logos::skip)]
+    Whitespace,
 
     #[error]
     Error,
