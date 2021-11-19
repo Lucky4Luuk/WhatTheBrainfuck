@@ -34,9 +34,13 @@ fn main() {
     if args.len() > 1 {
         let filename = &args[1];
         if let Ok(src) = std::fs::read_to_string(filename) {
-            println!("{}", src);
+            // println!("{}", src);
             let lexer = lexer::Token::lexer(&src);
-            let parsed = parser::parse(lexer);
+            let parsed = parser::parse(lexer).expect("Failed to parse!");
+
+            // println!("{:?}", parsed);
+            parsed.debug_print();
+
             compiler::compile(Triple::host());
         } else {
             print_styled(format!("Could not read file {}", filename), &error_style);

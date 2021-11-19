@@ -1,14 +1,15 @@
 use std::collections::HashMap;
 
 use logos::Lexer;
+
 use crate::lexer::Token;
 
 pub type NodeCount = usize;
 pub type JumpLocation = usize;
 pub type JumpIdentifier = String;
 
-#[derive(Debug, PartialEq)]
-pub enum Node {
+#[derive(Debug, PartialEq, Clone)]
+pub(super) enum Node {
     Add(NodeCount),
     Subtract(NodeCount),
     Multiply(NodeCount),
@@ -32,22 +33,22 @@ pub enum Node {
 impl Node {
     fn from_token(token: Token) -> Self {
         match token {
-            Token::Add => Self::Add(1),
-            Token::Subtract => Self::Subtract(1),
-            Token::Multiply => Self::Multiply(1),
-            Token::Divide => Self::Divide(1),
+            Token::Add          => Self::Add(1),
+            Token::Subtract     => Self::Subtract(1),
+            Token::Multiply     => Self::Multiply(1),
+            Token::Divide       => Self::Divide(1),
 
-            Token::MoveRight => Self::MoveRight(1),
-            Token::MoveLeft => Self::MoveLeft(1),
-            Token::MoveZero => Self::MoveZero,
+            Token::MoveRight    => Self::MoveRight(1),
+            Token::MoveLeft     => Self::MoveLeft(1),
+            Token::MoveZero     => Self::MoveZero,
 
-            Token::LoopLeft => Self::LoopStart,
-            Token::LoopRight => Self::LoopEnd,
+            Token::LoopLeft     => Self::LoopStart,
+            Token::LoopRight    => Self::LoopEnd,
 
-            Token::StackPush => Self::StackPush,
-            Token::StackPop => Self::StackPop,
+            Token::StackPush    => Self::StackPush,
+            Token::StackPop     => Self::StackPop,
 
-            Token::Jump => panic!("Jump token cannot be directly transformed into a node!"),
+            Token::Jump         => panic!("Jump token cannot be directly transformed into a node!"),
 
             _ => Self::Error,
         }
@@ -83,18 +84,17 @@ impl Node {
     }
 }
 
-pub struct ParseResult {
+pub(super) struct NodeStructure {
     pub nodes: Vec<Node>,
     pub label_map: HashMap<String, JumpLocation>,
 }
 
-pub fn parse(mut lexer: Lexer<Token>) -> ParseResult {
+/// Performs basic RLE as well
+pub(super) fn nodeify(mut lexer: Lexer<Token>) -> NodeStructure {
     let mut nodes: Vec<Node> = Vec::new();
     let mut label_map: HashMap<String, JumpLocation> = HashMap::new();
 
     while let Some(token) = lexer.next() {
-        println!("Token: {:?} | {}", token, lexer.slice());
-
         match token {
             Token::Add | Token::Subtract | Token::Multiply | Token::Divide | Token::MoveRight | Token::MoveLeft => {
                 if let Some(last) = nodes.last_mut() {
@@ -134,13 +134,7 @@ pub fn parse(mut lexer: Lexer<Token>) -> ParseResult {
         }
     }
 
-    println!();
-
-    for node in &nodes {
-        println!("Node: {:?}", node);
-    }
-
-    ParseResult {
+    NodeStructure {
         nodes: nodes,
         label_map: label_map,
     }
