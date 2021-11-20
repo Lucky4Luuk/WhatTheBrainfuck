@@ -64,7 +64,9 @@ impl Node {
             Self::MoveRight(_) => token == Token::MoveRight,
             Self::MoveLeft(_) => token == Token::MoveLeft,
 
-            // We can't compare the loop Node, as it is part of multiple tokens
+            Self::LoopStart => token == Token::LoopLeft,
+            Self::LoopEnd => token == Token::LoopRight,
+
             _ => false,
         }
     }

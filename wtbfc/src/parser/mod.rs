@@ -105,7 +105,7 @@ impl TreeBuilder {
 
             if node == Some(Node::LoopStart) {
                 self.cursor += 1;
-                self.handle_loop();
+                instructions.push(Instruction::Loop( self.handle_loop() ));
                 continue;
             }
 
