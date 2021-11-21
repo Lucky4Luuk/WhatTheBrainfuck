@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use logos::Lexer;
 
 use crate::lexer::Token;
@@ -25,6 +23,7 @@ pub(super) enum Node {
     StackPush,
     StackPop,
 
+    Label(JumpIdentifier),
     Jump(JumpIdentifier),
 
     Error,
@@ -88,13 +87,11 @@ impl Node {
 
 pub(super) struct NodeStructure {
     pub nodes: Vec<Node>,
-    pub label_map: HashMap<String, JumpLocation>,
 }
 
 /// Performs basic RLE as well
 pub(super) fn nodeify(mut lexer: Lexer<Token>) -> NodeStructure {
     let mut nodes: Vec<Node> = Vec::new();
-    let mut label_map: HashMap<String, JumpLocation> = HashMap::new();
 
     while let Some(token) = lexer.next() {
         match token {
@@ -120,11 +117,10 @@ pub(super) fn nodeify(mut lexer: Lexer<Token>) -> NodeStructure {
                 }
             },
             Token::Label => {
-                let loc = nodes.len();
                 let mut chars = lexer.slice().chars();
                 chars.next();
                 let name = chars.as_str();
-                label_map.insert(name.to_string(), loc);
+                nodes.push(Node::Label(name.to_string()));
             },
             Token::Jump => {
                 let mut chars = lexer.slice().chars();
@@ -138,6 +134,5 @@ pub(super) fn nodeify(mut lexer: Lexer<Token>) -> NodeStructure {
 
     NodeStructure {
         nodes: nodes,
-        label_map: label_map,
     }
 }

@@ -5,6 +5,7 @@ use logos::Logos;
 
 pub mod lexer;
 pub mod parser;
+pub mod optimizer;
 pub mod compiler;
 
 use compiler::Triple;
@@ -38,10 +39,9 @@ fn main() {
             let lexer = lexer::Token::lexer(&src);
             let parsed = parser::parse(lexer).expect("Failed to parse!");
 
-            // println!("{:?}", parsed);
-            parsed.debug_print();
+            // parsed.debug_print();
 
-            compiler::compile(Triple::host());
+            compiler::compile(filename, parsed, Triple::host());
         } else {
             print_styled(format!("Could not read file {}", filename), &error_style);
         }

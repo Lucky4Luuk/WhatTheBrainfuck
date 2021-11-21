@@ -5,7 +5,7 @@ use crate::lexer::Token;
 mod node;
 use node::*;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Instruction {
     Add(usize),
     Subtract(usize),
@@ -21,7 +21,11 @@ pub enum Instruction {
     StackPush,
     StackPop,
 
-    Jump(JumpLocation),
+    /// The label instruction is not a real instruction.
+    /// It is just there to inform the compiler that this is a
+    /// point of potential entry through a jump instruction.
+    Label(String),
+    Jump(String),
 }
 
 impl Instruction {
@@ -38,6 +42,9 @@ impl Instruction {
 
             Node::StackPush     => Self::StackPush,
             Node::StackPop      => Self::StackPop,
+
+            Node::Label(name)   => Self::Label(name),
+            Node::Jump(name)    => Self::Jump(name),
 
             other => panic!("Node type `{:?}` should be not be converted to an instruction directly!", other),
         }
@@ -149,7 +156,7 @@ impl TreeBuilder {
 }
 
 /// Performs RLE and builds an InstructionTree
-pub fn parse(mut lexer: Lexer<Token>) -> Result<InstructionTree, ParseError> {
+pub fn parse(lexer: Lexer<Token>) -> Result<InstructionTree, ParseError> {
     let node_structure = nodeify(lexer);
 
     let tree_builder = TreeBuilder::from_node_structure(node_structure);

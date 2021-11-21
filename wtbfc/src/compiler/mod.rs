@@ -3,6 +3,12 @@ use cranelift::prelude::isa::{self, TargetIsa, CallConv};
 use cranelift::prelude::Configurable;
 pub use target_lexicon::Triple; //Re-export for use in the frontend
 
+use crate::parser::InstructionTree;
+
+mod backend;
+pub(super) mod block_gen;
+pub(super) mod instruction;
+
 pub struct CompileTarget {
     pub triple: Triple,
     pub isa: Box<dyn TargetIsa>,
@@ -28,6 +34,10 @@ impl CompileTarget {
     }
 }
 
-pub fn compile(triple: Triple) {
-    
+pub fn compile(obj_name: &str, instruction_tree: InstructionTree, triple: Triple) {
+    let flags = settings::Flags::new(settings::builder());
+
+    let target = CompileTarget::from_triple(flags, triple);
+
+    backend::gen(obj_name, instruction_tree, target)
 }
